@@ -1,2 +1,0 @@
-# types-peed
-Uni Project
