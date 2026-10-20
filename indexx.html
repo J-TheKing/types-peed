@@ -1,0 +1,625 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TypeSpeed.exe | Retro Typing Test</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+
+:root {
+  --screen: #202b21;
+  --panel: #293629;
+  --green: #c7e5a1;
+  --bright: #e4ffb0;
+  --amber: #f0c66b;
+  --red: #f17b70;
+  --muted: #91a47f;
+  --case: #d6ceb3;
+  --ink: #353c30;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 28px 16px 18px;
+  background-color: #bcb69e;
+  background-image: radial-gradient(#9e9984 0.8px, transparent 0.8px);
+  background-size: 7px 7px;
+  color: var(--ink);
+  font-family: 'VT323', monospace;
+  font-size: 23px;
+}
+
+button, select, textarea { font: inherit; }
+
+.computer {
+  max-width: 790px;
+  margin: 0 auto;
+  padding: 18px;
+  background: var(--case);
+  border: 3px solid #aaa48d;
+  border-radius: 12px;
+  box-shadow: 0 9px 0 #938d77, 0 18px 35px #55513b40;
+  animation: boot-in .55s ease-out both;
+}
+
+@keyframes boot-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  font-size: 20px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 2px solid var(--ink);
+  border-radius: 5px;
+  font-size: 27px;
+}
+
+.brand h1 {
+  margin: 0;
+  font: 13px 'Press Start 2P', monospace;
+  line-height: 1.8;
+}
+
+.brand small {
+  display: block;
+  font-size: 18px;
+}
+
+.lamp {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: #637b45;
+  box-shadow: 0 0 5px #637b45;
+}
+
+.screen {
+  position: relative;
+  overflow: hidden;
+  padding: 22px;
+  color: var(--green);
+  background: var(--screen);
+  border: 5px solid #99927b;
+  border-radius: 7px;
+  box-shadow: inset 0 0 24px #0009;
+}
+
+.screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    #0000000a 4px
+  );
+}
+
+.screen-content { position: relative; z-index: 1; }
+
+.terminal-heading {
+  color: var(--amber);
+  font: clamp(13px, 3vw, 19px) 'Press Start 2P', monospace;
+  line-height: 1.8;
+  margin: 0 0 8px;
+}
+
+.subtitle {
+  margin: 0 0 22px;
+  color: var(--muted);
+  font-size: 23px;
+}
+
+.divider {
+  border: 0;
+  border-top: 1px dashed #63765a;
+  margin: 16px 0;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.stat {
+  padding: 12px 6px;
+  text-align: center;
+  background: #151f17;
+  border: 1px solid #52664b;
+  border-radius: 4px;
+}
+
+.stat-label {
+  display: block;
+  margin-bottom: 9px;
+  color: var(--muted);
+  font-size: 18px;
+}
+
+.stat-value {
+  display: block;
+  color: var(--bright);
+  font-size: 37px;
+  line-height: 1;
+}
+
+.stat:nth-child(2) .stat-value { color: var(--green); }
+.stat:nth-child(3) .stat-value { color: var(--amber); }
+
+.section-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 19px;
+  margin-bottom: 9px;
+}
+
+#passage {
+  min-height: 128px;
+  padding: 15px;
+  background: #18231a;
+  border: 1px solid #52664b;
+  border-radius: 3px;
+  font-size: 27px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+#passage .correct { color: var(--bright); }
+#passage .wrong {
+  color: var(--red);
+  background: #713c3240;
+  text-decoration: underline;
+  text-decoration-style: wavy;
+}
+#passage .current {
+  border-left: 2px solid var(--amber);
+  animation: blink .85s steps(2, start) infinite;
+}
+
+@keyframes blink {
+  to { border-color: transparent; }
+}
+
+textarea {
+  display: block;
+  width: 100%;
+  min-height: 90px;
+  margin-top: 12px;
+  padding: 12px;
+  resize: vertical;
+  color: var(--bright);
+  background: #131c15;
+  border: 1px solid #637b54;
+  border-radius: 3px;
+  outline: none;
+  font-size: 25px;
+  line-height: 1.4;
+  caret-color: var(--amber);
+}
+
+textarea:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 2px #c7e5a122;
+}
+
+textarea:disabled { opacity: .7; }
+
+.controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+select {
+  padding: 8px;
+  color: var(--green);
+  background: #172219;
+  border: 1px solid #637b54;
+  border-radius: 3px;
+}
+
+button {
+  padding: 11px 14px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  border-radius: 3px;
+  transition: transform .12s, filter .12s;
+}
+
+button:hover { filter: brightness(1.1); transform: translateY(-2px); }
+button:active { transform: translateY(1px); }
+
+.primary {
+  color: #202b21;
+  background: var(--green);
+  border-color: var(--bright);
+  font-weight: bold;
+}
+
+.secondary {
+  color: var(--green);
+  background: #273629;
+  border-color: #617655;
+}
+
+#message {
+  min-height: 26px;
+  margin-top: 12px;
+  color: var(--muted);
+}
+
+.result {
+  display: none;
+  margin-top: 16px;
+  padding: 18px;
+  border: 2px dashed var(--amber);
+  text-align: center;
+  animation: boot-in .3s ease-out;
+}
+
+.result h2 {
+  color: var(--amber);
+  font: 13px 'Press Start 2P', monospace;
+  line-height: 1.9;
+}
+
+.result-score {
+  color: var(--bright);
+  font-size: 45px;
+}
+
+.result p { margin: 8px 0 18px; }
+
+.progress-track {
+  height: 7px;
+  margin-top: 12px;
+  overflow: hidden;
+  background: #101810;
+  border: 1px solid #52664b;
+}
+
+#progress {
+  width: 0%;
+  height: 100%;
+  background: var(--green);
+  transition: width .12s linear;
+}
+
+.bottom {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  color: #666652;
+  font-size: 18px;
+}
+
+@media (max-width: 520px) {
+  body { padding: 15px 9px; }
+  .computer { padding: 9px; }
+  .screen { padding: 14px 10px; }
+  .stats { gap: 5px; }
+  .stat { padding: 10px 3px; }
+  .stat-value { font-size: 29px; }
+  #passage { font-size: 24px; padding: 10px; }
+  .controls button { flex: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+<div class="computer">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon">⌨</div>
+      <div>
+        <h1>TypeSpeed.exe</h1>
+        <small>RETRO TYPING TERMINAL</small>
+      </div>
+    </div>
+    <div><span class="lamp"></span>SYSTEM READY</div>
+  </header>
+
+  <main class="screen">
+    <div class="screen-content">
+      <h2 class="terminal-heading">TYPE FASTER_</h2>
+      <p class="subtitle">A keyboard speed challenge. Ready, player?</p>
+
+      <div class="stats">
+        <div class="stat">
+          <span class="stat-label">SPEED</span>
+          <strong class="stat-value" id="speed">000</strong>
+          <span class="stat-label">WPM</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">ACCURACY</span>
+          <strong class="stat-value" id="accuracy">100%</strong>
+          <span class="stat-label">PRECISION</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">TIME LEFT</span>
+          <strong class="stat-value" id="time">60</strong>
+          <span class="stat-label">SECONDS</span>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="section-label">
+        <span>▶ COPY THIS TEXT</span>
+        <span id="passageNumber">TEXT 01</span>
+      </div>
+
+      <div id="passage"></div>
+      <div class="progress-track"><div id="progress"></div></div>
+
+      <textarea id="typing" rows="2"
+        placeholder="> Start typing here..."
+        spellcheck="false" autocomplete="off"
+        autocapitalize="off" aria-label="Type the displayed passage"></textarea>
+
+      <div class="controls">
+        <label for="duration">TIME:</label>
+        <select id="duration">
+          <option value="30">30 SEC</option>
+          <option value="60" selected>60 SEC</option>
+          <option value="120">120 SEC</option>
+        </select>
+        <button class="primary" id="restart">[ RESTART ]</button>
+        <button class="secondary" id="newText">[ NEW TEXT ]</button>
+      </div>
+
+      <div id="message" role="status">SYSTEM: Waiting for input...</div>
+
+      <section class="result" id="result" aria-live="polite">
+        <h2>*** GAME OVER ***</h2>
+        <div class="result-score" id="finalWpm">000 WPM</div>
+        <p id="finalDetails"></p>
+        <h2 id="rank">RANK: ROOKIE</h2>
+        <button class="primary" id="playAgain">[ PLAY AGAIN ]</button>
+      </section>
+    </div>
+  </main>
+
+  <footer class="bottom">
+    <span>TYPE.EXE v1.0</span>
+    <span>INSERT KEYBOARD TO BEGIN...</span>
+    <span>© 2026</span>
+  </footer>
+</div>
+
+<script>
+const passages = [
+  "The quick brown fox jumps over the lazy dog. A good typist learns to stay calm, focus on each word, and keep moving forward.",
+  "Welcome to the retro computer club. Today is a good day to learn something new, practise a useful skill, and have a little fun.",
+  "Every expert was once a beginner. Take your time, learn from mistakes, and remember that steady practice makes a real difference.",
+  "Computers have changed the way we work, learn, and communicate. Behind every great idea is a curious mind willing to try something new.",
+  "The best adventures begin with a single step. Keep your hands on the keyboard, follow the words on the screen, and discover your own speed."
+];
+
+const $ = id => document.getElementById(id);
+const passageEl = $("passage");
+const typingEl = $("typing");
+const durationEl = $("duration");
+
+let target = "";
+let passageIndex = -1;
+let startedAt = null;
+let endAt = null;
+let timer = null;
+let finished = false;
+let lastWpm = 0;
+let lastAccuracy = 100;
+
+function choosePassage() {
+  let next;
+  do {
+    next = Math.floor(Math.random() * passages.length);
+  } while (passages.length > 1 && next === passageIndex);
+  passageIndex = next;
+  target = passages[next];
+  $("passageNumber").textContent =
+    "TEXT " + String(next + 1).padStart(2, "0");
+  renderPassage("");
+}
+
+function renderPassage(value) {
+  passageEl.replaceChildren();
+
+  for (let i = 0; i < target.length; i++) {
+    const span = document.createElement("span");
+    span.textContent = target[i];
+
+    if (i < value.length) {
+      span.className = value[i] === target[i] ? "correct" : "wrong";
+    } else if (i === value.length && !finished) {
+      span.className = "current";
+    }
+
+    passageEl.appendChild(span);
+  }
+}
+
+function getStats(value) {
+  let correct = 0;
+  for (let i = 0; i < value.length; i++) {
+    if (value[i] === target[i]) correct++;
+  }
+
+  const elapsedMinutes = startedAt === null
+    ? 0
+    : Math.max((Date.now() - startedAt) / 60000, 1 / 60);
+
+  // Standard gross WPM: five typed characters count as one word.
+  const wpm = elapsedMinutes > 0
+    ? Math.round((value.length / 5) / elapsedMinutes)
+    : 0;
+
+  const accuracy = value.length
+    ? Math.round(correct / value.length * 100)
+    : 100;
+
+  return { correct, wpm, accuracy };
+}
+
+function updateStats() {
+  const stats = getStats(typingEl.value);
+  lastWpm = stats.wpm;
+  lastAccuracy = stats.accuracy;
+  $("speed").textContent = String(stats.wpm).padStart(3, "0");
+  $("accuracy").textContent = stats.accuracy + "%";
+  $("progress").style.width =
+    Math.min(100, typingEl.value.length / target.length * 100) + "%";
+  renderPassage(typingEl.value);
+}
+
+function tick() {
+  if (finished || startedAt === null) return;
+
+  const remaining = Math.max(0, Math.ceil((endAt - Date.now()) / 1000));
+  $("time").textContent = remaining;
+  updateStats();
+
+  if (remaining <= 0) finishTest("TIME LIMIT REACHED.");
+}
+
+function finishTest(reason) {
+  if (finished) return;
+  finished = true;
+  clearInterval(timer);
+  timer = null;
+  typingEl.disabled = true;
+  durationEl.disabled = false;
+
+  updateStats();
+  renderPassage(typingEl.value);
+  $("message").textContent = "SYSTEM: " + reason;
+
+  // Keep the remaining time accurate if the full passage is completed early.
+  if (endAt !== null) {
+    $("time").textContent = Math.max(
+      0, Math.ceil((endAt - Date.now()) / 1000)
+    );
+  }
+
+  $("finalWpm").textContent = String(lastWpm).padStart(3, "0") + " WPM";
+  $("finalDetails").textContent =
+    "Accuracy: " + lastAccuracy + "% | Characters typed: " +
+    typingEl.value.length;
+
+  let rank = "ROOKIE";
+  if (lastWpm >= 80 && lastAccuracy >= 95) rank = "KEYBOARD LEGEND";
+  else if (lastWpm >= 60 && lastAccuracy >= 90) rank = "SPEED MASTER";
+  else if (lastWpm >= 40 && lastAccuracy >= 85) rank = "PRO TYPER";
+  else if (lastWpm >= 20) rank = "RISING PLAYER";
+
+  $("rank").textContent = "RANK: " + rank;
+  $("result").style.display = "block";
+}
+
+function startTest() {
+  clearInterval(timer);
+  timer = null;
+  startedAt = null;
+  endAt = null;
+  finished = false;
+  lastWpm = 0;
+  lastAccuracy = 100;
+
+  typingEl.value = "";
+  typingEl.disabled = false;
+  durationEl.disabled = false;
+  $("result").style.display = "none";
+  $("speed").textContent = "000";
+  $("accuracy").textContent = "100%";
+  $("time").textContent = durationEl.value;
+  $("progress").style.width = "0%";
+  $("message").textContent = "SYSTEM: Waiting for input...";
+  renderPassage("");
+
+  typingEl.focus();
+}
+
+typingEl.addEventListener("input", () => {
+  if (finished) return;
+
+  if (startedAt === null && typingEl.value.length > 0) {
+    startedAt = Date.now();
+    endAt = startedAt + Number(durationEl.value) * 1000;
+    durationEl.disabled = true;
+    $("message").textContent = "SYSTEM: TEST RUNNING... KEEP GOING!";
+    timer = setInterval(tick, 100);
+  }
+
+  updateStats();
+
+  if (typingEl.value.length >= target.length) {
+    finishTest("PASSAGE COMPLETED!");
+  }
+});
+
+typingEl.addEventListener("paste", event => {
+  event.preventDefault();
+  $("message").textContent = "SYSTEM: PLEASE TYPE, DO NOT PASTE.";
+});
+
+$("restart").addEventListener("click", startTest);
+$("playAgain").addEventListener("click", startTest);
+
+$("newText").addEventListener("click", () => {
+  choosePassage();
+  startTest();
+});
+
+durationEl.addEventListener("change", () => {
+  $("time").textContent = durationEl.value;
+});
+
+choosePassage();
+startTest();
+</script>
+</body>
+</html>
